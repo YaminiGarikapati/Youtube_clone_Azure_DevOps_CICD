@@ -1,22 +1,37 @@
-trigger: 
-- main
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - README.md
 
 stages:
-- stage: Build
-  jobs:
-  - job: Build
-    pool:
-      vmImage: 'ubuntu-latest'
-    steps:
-    - task: Npm@1
-      inputs:
-       command: 'install'
-    - task: Npm@1
-      inputs:
-       command: 'custom'
-       customCommand: 'run build'
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: 'build'
-        ArtifactName: 'drop'
-        publishLocation: 'Container'
+  - stage: Build
+    jobs:
+      - job: Build
+        pool:
+          vmImage: 'ubuntu-latest'
+
+        steps:
+          - checkout: self
+
+          - task: Npm@1
+            inputs:
+              command: 'install'
+
+          - task: Npm@1
+            inputs:
+              command: 'custom'
+              customCommand: 'run build'
+
+          - task: PublishBuildArtifacts@1
+            inputs:
+              PathtoPublish: 'build'
+              ArtifactName: 'drop'
+              publishLocation: 'Container'
+
+          - script: |
+              echo "README.md change detected!"
+              echo "Pipeline triggered automatically."
+            displayName: 'Detect README changes'
